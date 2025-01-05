@@ -3,6 +3,8 @@ import psycopg2
 import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
+from passlib.context import CryptContext
+
 from time import time
 from glob import glob
 
@@ -210,3 +212,12 @@ def count_react(data):
 def get_db():
     db = Postgres()
     return db
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str):
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str):
+    return pwd_context.verify(plain_password, hashed_password)

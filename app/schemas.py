@@ -108,3 +108,11 @@ class BookPurchase(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+
+    class Config:
+        orm_mode = True 

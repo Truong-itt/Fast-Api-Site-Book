@@ -1,6 +1,14 @@
 # app/crud.py
 from sqlalchemy.orm import Session
 from . import models, schemas
+from app.schemas import UserCreate
+# from app.utils import hash_password 
+
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
+
 
 # Tạo đánh giá mới
 def create_review(db: Session, review: schemas.ReviewCreate):
@@ -93,3 +101,56 @@ def get_books_purchased_by_user(db: Session, user_id: int):
         .all()
     )
     return result
+
+def get_orders_completed(db: Session):
+    result = (
+        db.query(models.Order)
+        .filter(models.Order.status == "completed")
+        .all()
+    )
+    return result
+
+def get_orders_cancelled(db: Session):
+    result = (
+        db.query(models.Order)
+        .filter(models.Order.status == "cancelled")
+        .all()
+    )
+    return result
+
+def get_orders_pending(db: Session):
+    result = (
+        db.query(models.Order)
+        .filter(models.Order.status == "pending")
+        .all()
+    )
+    return result
+
+def get_orders_processing(db: Session):
+    result = (
+        db.query(models.Order)
+        .filter(models.Order.status == "processing")
+        .all()
+    )
+    return result
+
+def get_orders_shipped(db: Session):
+    result = (
+        db.query(models.Order)
+        .filter(models.Order.status == "shipped")
+        .all()
+    )
+    return result
+
+# def create_user(db: Session, user: UserCreate):
+#     # Mã hóa mật khẩu trước khi lưu vào DB
+#     hashed_password = hash_password(user.password)
+#     db_user = User(
+#         name=user.name,
+#         email=user.email,
+#         password=hashed_password
+#     )
+#     db.add(db_user)
+#     db.commit()  # Commit dữ liệu vào DB
+#     db.refresh(db_user)  # Đảm bảo nhận dữ liệu cập nhật từ DB
+#     return db_user

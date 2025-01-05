@@ -28,9 +28,21 @@ def get_user(id: int, db: Session = Depends(get_db)):
     return user
     
 
-@router.get("/purchased_books/{id}", response_model=List[schemas.BookPurchase])
+@router.get("/purchased_books/{user_id}", response_model=List[schemas.BookPurchase])
 def get_books_purchased(user_id: int, db: Session = Depends(get_db)):
     books = crud.get_books_purchased_by_user(db=db, user_id=user_id)
     if not books:
         raise HTTPException(status_code=404, detail="No books found for this user")
     return books
+
+
+# @router.post("/users", response_model=schemas.UserCreate)
+# def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+#     # Kiểm tra xem email đã tồn tại chưa
+#     db_user = db.query(models.User).filter(models.User.email == user.email).first()
+#     if db_user:
+#         raise HTTPException(status_code=400, detail="Email already registered")
+    
+#     # Tạo người dùng mới
+#     db_user = crud.create_user(db=db, user=user)
+#     return db_user
