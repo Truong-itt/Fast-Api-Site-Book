@@ -1,0 +1,24 @@
+services:
+  pg-fast-api:
+    image: postgres:17.0
+    container_name: pg-fast-api
+    env_file:
+      - .env
+    # command: [ "postgres", "-c", "wal_level=logical", "-c", "max_wal_senders=10", "-c", "wal_keep_size=512MB", "-c", "hot_standby=on" ]
+    volumes:
+      - ./data/master-data:/var/lib/postgresql/data
+      - ./schemas/truongitt_schemas.sql:/docker-entrypoint-initdb.d/mention.sql:ro
+    ports:
+      - "5435:5432"
+    networks:
+      - truongitt-pg
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  truongitt-pg:
+    name: truongitt-pg
+    external: true
