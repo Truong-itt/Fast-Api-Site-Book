@@ -18,7 +18,7 @@ def get_books(db: Session = Depends(get_db)):
     return books
 
 # get review by id
-@router.get("/{id}")
+@router.get("/reviewId")
 def get_book(id: int, db: Session = Depends(get_db)):
     book = crud.get_review_by_id(db=db, review_id=id)
     if book is None:

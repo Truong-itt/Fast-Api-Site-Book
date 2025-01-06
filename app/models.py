@@ -80,5 +80,67 @@ class Review(Base):
     book = relationship("Book")
     user = relationship("User")
 
+class Favorite(Base): 
+    __tablename__ = "favorites"
+    favorite_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    book_id = Column(Integer, ForeignKey("books.book_id"), nullable=False)
+    created_at = Column(TIMESTAMP, default="now()")
 
+    book = relationship("Book")
+    user = relationship("User")
 
+class Coupon(Base): 
+    __tablename__ = "coupons"
+    coupon_id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(100), nullable=False)
+    discount_percentage = Column(DECIMAL(10, 2), nullable=False)
+    max_discount = Column(DECIMAL(10, 2), nullable=False)
+    expiration_date = Column(TIMESTAMP, nullable=False)
+    created_at = Column(TIMESTAMP, default="now()")
+    is_active = Column(Boolean, default=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    usage_limit = Column(Integer, default=0)
+    times_used = Column(Integer, default=0)
+
+    user = relationship("User")
+
+class Order_coupon(Base):
+    __tablename__ = "order_coupons"
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.order_id"), nullable=False)
+    coupon_id = Column(Integer, ForeignKey("coupons.coupon_id"), nullable=False)
+    discount_applied = Column(DECIMAL(10, 2), nullable=False, default=0)
+    created_at = Column(TIMESTAMP, default="now()")
+
+    order = relationship("Order")
+
+class Payment_history(Base):
+    __tablename__ = "payment_history"
+    payment_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    order_id = Column(Integer, ForeignKey("orders.order_id"), nullable=False)
+    amount_paid = Column(DECIMAL(10, 2), nullable=False)
+    payment_method = Column(String(100), nullable=False)
+    payment_status = Column(String(100), default="success")
+    created_at = Column(TIMESTAMP, default="now()")
+    
+    user = relationship("User")
+    order = relationship("Order")
+
+class Shipping_address(Base):
+    __tablename__ = "shipping_addresses"
+    address_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    full_name = Column(String(100),  nullable=False)
+    phone = Column(String(15),  nullable=False)
+    address_line1 = Column(Text, nullable=False)
+    address_line2 = Column(Text, nullable=False)
+    city = Column(String(100),  nullable=False)
+    state = Column(String(100))
+    postal_code = Column(String(20),  nullable=False)
+    country = Column(String(100),  nullable=False)
+    is_default = Column(Boolean, default=True)
+    created_at = Column(TIMESTAMP, default="now()")
+
+    user = relationship("User")

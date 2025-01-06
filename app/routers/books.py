@@ -18,7 +18,7 @@ def get_books(db: Session = Depends(get_db)):
     return books
 
 # get book by id
-@router.get("/{id}")
+@router.get("/getBookId")
 def get_book(id: int, db: Session = Depends(get_db)):
     book = crud.get_book_by_id(db=db, book_id=id)
     if book is None:
@@ -26,7 +26,7 @@ def get_book(id: int, db: Session = Depends(get_db)):
     return book
 
 # get books by category
-@router.get("/category/{category_id}")
+@router.get("/getBook/categoryId")
 def get_books_by_category(category_id: int, db: Session = Depends(get_db)):
     books = crud.get_books_by_category(db=db, category_id=category_id)
     if not books:

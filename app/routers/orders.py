@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 # get all books
-@router.get("/")
+@router.get("/all")
 def get_books(db: Session = Depends(get_db)):
     books = crud.get_all_data_orders(db=db)
     if not books:
@@ -24,70 +24,27 @@ def get_books(db: Session = Depends(get_db)):
 
 # get book by id
 # @router.get("/{id}", response_model=schemas.OrderBase)
-@router.get("/{id}")
+@router.get("/")
 def get_book(id: int, db: Session = Depends(get_db)):
     book = crud.get_order_by_id(db=db, order_id=id)
     if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     return book
 
-# get product has status = "completed"
-@router.get("/completed/")
-def get_books_completed(db: Session = Depends(get_db)):
-    try:
-        books = crud.get_orders_completed(db=db)
-        logging.info('books: %s', books)
-        if not books:
-            raise HTTPException(status_code=404, detail="No books found")
-        return books
-    except Exception as e:  
-        logging.error("Error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+# truyen vao trạng thai status thuc hien tim kiem
+# completed - cancelled - pending - processing - shipped
+@router.get("/status")
+def get_book_status(status: str, db: Session = Depends(get_db)):
+    book = crud.get_order_by_status(db=db, status=status)
+    if book is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return book
 
-@router.get("/cancelled/")
-def get_books_cancelled(db: Session = Depends(get_db)):
-    try:
-        books = crud.get_orders_cancelled(db=db)
-        logging.info('books: %s', books)
-        if not books:
-            raise HTTPException(status_code=404, detail="No books found")
-        return books
-    except Exception as e:  
-        logging.error("Error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+@router.get("/orderItem/")
+def get_book_status(order_id: int, db: Session = Depends(get_db)):
+    book = crud.get_orderItem_by_order(db=db, order_id=order_id)
+    if book is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return book
 
-@router.get("/pending/")
-def get_books_pending(db: Session = Depends(get_db)):
-    try:
-        books = crud.get_orders_pending(db=db)
-        logging.info('books: %s', books)
-        if not books:
-            raise HTTPException(status_code=404, detail="No books found")
-        return books
-    except Exception as e:  
-        logging.error("Error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@router.get("/processing/")
-def get_books_pending(db: Session = Depends(get_db)):
-    try:
-        books = crud.get_orders_processing(db=db)
-        logging.info('books: %s', books)
-        if not books:
-            raise HTTPException(status_code=404, detail="No books found")
-        return books
-    except Exception as e:  
-        logging.error("Error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-@router.get("/shipped/")
-def get_books_pending(db: Session = Depends(get_db)):
-    try:
-        books = crud.get_orders_shipped(db=db)
-        logging.info('books: %s', books)
-        if not books:
-            raise HTTPException(status_code=404, detail="No books found")
-        return books
-    except Exception as e:  
-        logging.error("Error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")

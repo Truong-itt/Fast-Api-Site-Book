@@ -8,8 +8,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-
-
 # Tạo đánh giá mới
 def create_review(db: Session, review: schemas.ReviewCreate):
     db_review = models.Review(**review.dict())
@@ -141,6 +139,39 @@ def get_orders_shipped(db: Session):
         .all()
     )
     return result
+
+def get_order_by_status (db: Session, status: str):
+    return db.query(models.Order).filter(models.Order.status == status).all()
+
+def get_reviews_by_user(db: Session, user_id: int):
+    return db.query(models.Review).filter(models.Review.user_id == user_id).all()
+    
+def get_orderItem_by_order(db: Session, order_id: int):
+    return db.query(models.OrderItem).filter(models.OrderItem.order_id == order_id).all()
+    
+def get_favorites_all(db: Session):
+    return db.query(models.Favorite).all()
+
+def get_coupons_all(db: Session):
+    return db.query(models.Coupon).all()
+
+def get_order_coupons_all(db: Session):
+    return db.query(models.Coupon).all()
+
+def get_order_coupons_all(db: Session):
+    return db.query(models.Order_coupon).all()
+
+def get_payment_history_all(db:Session):
+    return db.query(models.Payment_history).all()
+
+def get_shippingAddresses_all(db: Session):
+    return db.query(models.Shipping_address).all()
+
+    # result = (
+    #     db.query(models.Review)
+    #     .
+    # )
+    # return db.query(models.Review).filter(models.Review.review_id == review_id).first()
 
 # def create_user(db: Session, user: UserCreate):
 #     # Mã hóa mật khẩu trước khi lưu vào DB

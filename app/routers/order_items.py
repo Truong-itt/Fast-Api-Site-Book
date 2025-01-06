@@ -18,7 +18,7 @@ def get_books(db: Session = Depends(get_db)):
     return books
 
 # get user by id
-@router.get("/{id}")
+@router.get("/orderItemId")
 def get_user(id: int, db: Session = Depends(get_db)):
     user = crud.get_orderItem_by_id(db=db, orderItem_id=id)
     if user is None:

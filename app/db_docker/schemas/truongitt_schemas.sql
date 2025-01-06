@@ -59,6 +59,74 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (user_id) REFERENCES users(user_id) -- Ràng buộc khóa ngoại tới bảng users
 );
 
+CREATE TABLE IF NOT EXISTS favorites (
+    favorite_id SERIAL PRIMARY KEY, -- ID yêu thích (tự động tăng)
+    user_id INT NOT NULL,           -- ID người dùng
+    book_id INT NOT NULL,           -- ID sách
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian thêm vào danh sách yêu thích
+    FOREIGN KEY (user_id) REFERENCES users(user_id), -- Ràng buộc khóa ngoại tới bảng users
+    FOREIGN KEY (book_id) REFERENCES books(book_id), -- Ràng buộc khóa ngoại tới bảng books
+    UNIQUE (user_id, book_id)       -- Mỗi người dùng chỉ có thể thêm một sách vào yêu thích một lần
+);
+
+-- phieu giam gia
+CREATE TABLE IF NOT EXISTS coupons (
+    coupon_id SERIAL PRIMARY KEY,      -- ID mã giảm giá
+    code VARCHAR(50) UNIQUE NOT NULL,  -- Mã giảm giá (duy nhất)
+    discount_percentage DECIMAL(5, 2) CHECK (discount_percentage > 0 AND discount_percentage <= 100), -- Phần trăm giảm giá
+    max_discount DECIMAL(10, 2),       -- Số tiền giảm tối đa (nếu có)
+    expiration_date TIMESTAMP,         -- Ngày hết hạn
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian tạo
+    is_active BOOLEAN DEFAULT TRUE     -- Trạng thái hoạt động
+);
+
+ALTER TABLE coupons
+ADD COLUMN user_id INT,                           -- Người dùng được chỉ định mã giảm giá
+ADD COLUMN usage_limit INT DEFAULT 1,             -- Giới hạn số lần sử dụng
+ADD COLUMN times_used INT DEFAULT 0,              -- Số lần đã sử dụng
+ADD FOREIGN KEY (user_id) REFERENCES users(user_id); -- Ràng buộc khóa ngoại tới bảng users
+
+-- Bảng lưu mã giảm giá được sử dụng trong đơn hàng
+CREATE TABLE IF NOT EXISTS order_coupons (
+    id SERIAL PRIMARY KEY,           -- ID liên kết
+    order_id INT NOT NULL,           -- ID đơn hàng
+    coupon_id INT NOT NULL,          -- ID mã giảm giá
+    discount_applied DECIMAL(10, 2), -- Số tiền giảm giá thực tế
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian sử dụng
+    FOREIGN KEY (order_id) REFERENCES orders(order_id), -- Khóa ngoại tới bảng orders
+    FOREIGN KEY (coupon_id) REFERENCES coupons(coupon_id) -- Khóa ngoại tới bảng coupons
+);
+
+-- Bảng lưu lịch sử thanh toán
+CREATE TABLE IF NOT EXISTS payment_history (
+    payment_id SERIAL PRIMARY KEY,     -- ID thanh toán
+    user_id INT NOT NULL,              -- ID người dùng
+    order_id INT NOT NULL,             -- ID đơn hàng
+    amount_paid DECIMAL(10, 2) NOT NULL, -- Số tiền thanh toán
+    payment_method VARCHAR(50) NOT NULL, -- Phương thức thanh toán (e.g., "Credit Card", "PayPal")
+    payment_status VARCHAR(50) DEFAULT 'success', -- Trạng thái thanh toán (success, failed, pending)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian thanh toán
+    FOREIGN KEY (user_id) REFERENCES users(user_id), -- Ràng buộc khóa ngoại tới bảng users
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) -- Ràng buộc khóa ngoại tới bảng orders
+);
+
+
+-- Bảng lưu địa chỉ giao hàng của người dùng
+CREATE TABLE IF NOT EXISTS shipping_addresses (
+    address_id SERIAL PRIMARY KEY,     -- ID địa chỉ
+    user_id INT NOT NULL,              -- ID người dùng
+    full_name VARCHAR(100) NOT NULL,   -- Tên đầy đủ của người nhận
+    phone VARCHAR(15) NOT NULL,        -- Số điện thoại liên hệ
+    address_line1 TEXT NOT NULL,       -- Địa chỉ dòng 1
+    address_line2 TEXT,                -- Địa chỉ dòng 2 (tùy chọn)
+    city VARCHAR(100) NOT NULL,        -- Thành phố
+    state VARCHAR(100),                -- Tỉnh/bang (tùy chọn)
+    postal_code VARCHAR(20) NOT NULL,  -- Mã bưu điện
+    country VARCHAR(100) NOT NULL,     -- Quốc gia
+    is_default BOOLEAN DEFAULT FALSE,  -- Đánh dấu địa chỉ mặc định
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian tạo
+    FOREIGN KEY (user_id) REFERENCES users(user_id) -- Ràng buộc khóa ngoại tới bảng users
+);
 
 
 
@@ -169,3 +237,41 @@ VALUES
 (18, 3, 4, 'Simple yet powerful message.'),
 (19, 1, 5, 'An epic science fiction journey.'),
 (20, 2, 4, 'Strategic lessons still hold value today.');
+
+
+
+INSERT INTO favorites (user_id, book_id)
+VALUES
+(1, 6),  -- User Alice thích sách Harry Potter
+(2, 1),  -- User Bob thích sách The Great Gatsby
+(3, 3),  -- User Charlie thích sách Brief History of Time
+(1, 4),  -- User Alice thích sách Sapiens
+(2, 7);  -- User Bob thích sách The Hobbit
+
+
+INSERT INTO coupons (code, discount_percentage, max_discount, expiration_date, user_id, usage_limit)
+VALUES
+('WELCOME10', 10, 5.00, '2025-12-31', NULL, 100), -- Mã giảm giá chung
+('FIRSTBUY20', 20, 10.00, '2025-06-30', 1, 1),   -- Mã giảm giá dành riêng cho Alice
+('FREESHIP', 100, NULL, '2025-12-31', NULL, 50);  -- Mã giảm giá toàn phần
+
+
+
+INSERT INTO order_coupons (order_id, coupon_id, discount_applied)
+VALUES
+(1, 1, 5.00), -- Đơn hàng 1 sử dụng mã WELCOME10, giảm 5$
+(3, 2, 10.00); -- Đơn hàng 3 sử dụng mã FIRSTBUY20, giảm 10$
+
+
+INSERT INTO payment_history (user_id, order_id, amount_paid, payment_method, payment_status)
+VALUES
+(1, 1, 47.47, 'Credit Card', 'success'), -- Alice thanh toán thành công bằng thẻ tín dụng
+(2, 3, 68.50, 'PayPal', 'success'),     -- Charlie thanh toán qua PayPal
+(3, 6, 65.75, 'Bank Transfer', 'success'); -- Bob thanh toán qua chuyển khoản
+
+
+INSERT INTO shipping_addresses (user_id, full_name, phone, address_line1, city, postal_code, country, is_default)
+VALUES
+(1, 'Alice Johnson', '1234567890', '123 Main St', 'New York', '10001', 'USA', TRUE),  -- Địa chỉ mặc định của Alice
+(2, 'Bob Smith', '9876543210', '456 Elm St', 'Los Angeles', '90001', 'USA', TRUE),    -- Địa chỉ mặc định của Bob
+(3, 'Charlie Brown', '1122334455', '789 Pine St', 'San Francisco', '94101', 'USA', TRUE); -- Địa chỉ mặc định của Charlie

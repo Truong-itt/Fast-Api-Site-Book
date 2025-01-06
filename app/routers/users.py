@@ -20,7 +20,7 @@ def get_books(db: Session = Depends(get_db)):
 
 # get user by id
 # @router.get("/{id}", response_model=schemas.User)
-@router.get("/{id}")
+@router.get("/userId")
 def get_user(id: int, db: Session = Depends(get_db)):
     user = crud.get_user_by_id(db=db, user_id=id)
     if user is None:
@@ -28,12 +28,20 @@ def get_user(id: int, db: Session = Depends(get_db)):
     return user
     
 
-@router.get("/purchased_books/{user_id}", response_model=List[schemas.BookPurchase])
+@router.get("/purchase/userId", response_model=List[schemas.BookPurchase])
 def get_books_purchased(user_id: int, db: Session = Depends(get_db)):
     books = crud.get_books_purchased_by_user(db=db, user_id=user_id)
     if not books:
         raise HTTPException(status_code=404, detail="No books found for this user")
     return books
+
+@router.get("/reviews/")
+def get_user_reviews(user_id: int, db: Session = Depends(get_db)):
+    books = crud.get_reviews_by_user(db=db, user_id=user_id)
+    if not books:
+        raise HTTPException(status_code=404, detail="No books found for this user")
+    return books
+
 
 
 # @router.post("/users", response_model=schemas.UserCreate)
