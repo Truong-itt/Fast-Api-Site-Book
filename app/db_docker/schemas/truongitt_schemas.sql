@@ -7,6 +7,12 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Thời gian tạo
 );
 
+ALTER TABLE users
+  ADD COLUMN is_active BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE users
+  ADD COLUMN mode INt DEFAULT 1;
+  
 -- Bảng lưu danh mục sách (nếu có)
 CREATE TABLE IF NOT EXISTS categories (
     category_id SERIAL PRIMARY KEY, -- ID danh mục
@@ -275,3 +281,7 @@ VALUES
 (1, 'Alice Johnson', '1234567890', '123 Main St', 'New York', '10001', 'USA', TRUE),  -- Địa chỉ mặc định của Alice
 (2, 'Bob Smith', '9876543210', '456 Elm St', 'Los Angeles', '90001', 'USA', TRUE),    -- Địa chỉ mặc định của Bob
 (3, 'Charlie Brown', '1122334455', '789 Pine St', 'San Francisco', '94101', 'USA', TRUE); -- Địa chỉ mặc định của Charlie
+
+-- ALTER TABLE users 
+-- ADD COLUMN status varchar(20) DEFAULT 'active' 
+

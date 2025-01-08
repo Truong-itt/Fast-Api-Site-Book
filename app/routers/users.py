@@ -68,6 +68,49 @@ def get_user_coupons(user_id: int, db: Session = Depends(get_db)):
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
  
+# delete user
+# delete user
+@router.delete("/delete")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user = crud.get_user_by_id(db=db, user_id=user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    deleted_user = crud.delete_user_by_id(db=db, user_id=user_id)
+    return deleted_user
+
+# cap nhat thong tin nguoi dung
+
+@router.put("/update", response_model=schemas.User)
+def update_user(user_id: int, user: schemas.UserUpdate, db: Session = Depends(get_db)):
+    """
+    Cập nhật thông tin người dùng
+    """
+    print("Incoming Data:", user.dict())  # Ghi log dữ liệu đầu vào
+    try:
+        updated_user = crud.update_user_info(db=db, user_id=user_id, user=user)
+        if not updated_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+
+# Cập nhật mật khẩu người dùng
+@router.put("/updatePassword")
+def update_user_password(user_id: int, user: schemas.UserPasswordUpdate, db: Session = Depends(get_db)):
+    try:
+        updated_user = crud.update_user_password(db=db, user_id=user_id, user=user)
+        return {"message": "Password updated successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An error occurred while updating the password")
+# cap nhat mat khau nguoi dung 
+
+ 
+
 # @router.post("/users", response_model=schemas.UserCreate)
 # def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 #     # Kiểm tra xem email đã tồn tại chưa

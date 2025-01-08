@@ -199,6 +199,47 @@ def create_book(db: Session, book: schemas.BookCreate):
     db.refresh(db_book)
     return db_book
 
+def delete_user_by_id(db: Session, user_id: int):
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if user:
+        db.delete(user)
+        db.commit()
+        return user
+    return None
+
+def update_user_info(db: Session, user_id: int, user: schemas.UserUpdate):
+    """
+    Cập nhật thông tin người dùng trong cơ sở dữ liệu
+    """
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if not db_user:
+        return None
+
+    if user.name is not None:
+        db_user.name = user.name
+    if user.email is not None:
+        db_user.email = user.email
+    if user.is_active is not None:
+        db_user.is_active = user.is_active
+    if user.mode is not None:
+        if user.mode < 0 or user.mode > 3:
+            raise ValueError("Mode must be between 0 and 3")
+        db_user.mode = user.mode
+
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def update_user_password(db: Session, user_id: int, user: schemas.UserPasswordUpdate):
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if db_user:
+        if user.password != user.confirm_password:
+            raise ValueError("Passwords do not match")
+        db_user.password = user.password 
+        db.commit()
+        db.refresh(db_user)
+    return db_user
 
     # result = (
     #     db.query(models.Review)

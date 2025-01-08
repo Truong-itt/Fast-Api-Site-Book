@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
 
@@ -117,3 +117,19 @@ class UserCreate(BaseModel):
     class Config:
         from_attributes = True
         
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    is_active: Optional[bool] = None
+    # mode: Optional[int] = Field(None, ge=0, le=3, description="Mode must be between 0 and 3")
+    mode: Optional[int] = None
+    
+    class Config:
+        from_attributes = True
+
+class UserPasswordUpdate(BaseModel):
+    password: str
+    confirm_password: str
+
+    class Config:
+        from_attributes = True
