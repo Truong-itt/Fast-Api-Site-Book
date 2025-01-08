@@ -167,6 +167,39 @@ def get_payment_history_all(db:Session):
 def get_shippingAddresses_all(db: Session):
     return db.query(models.Shipping_address).all()
 
+def get_user_address(db: Session, user_id: int):
+    return db.query(models.Shipping_address).filter(models.Shipping_address.user_id ==  user_id).all()
+
+def get_user_favorite(db: Session, user_id: int):
+    return db.query(models.Favorite).filter(models.Favorite.user_id ==  user_id).all()
+
+def get_user_coupons(db: Session, user_id: int):
+    return db.query(models.Coupon).filter(models.Coupon.user_id ==  user_id).all()
+
+def get_book_reviews(db: Session, book_id: int):
+    return db.query(models.Review).filter(models.Review.book_id ==  book_id).all()
+
+def create_user(db: Session, user: UserCreate):
+    # Mã hóa mật khẩu trước khi lưu vào DB
+    # hashed_password = hash_password(user.password)
+    db_user = models.User(
+        name=user.name,
+        email=user.email,
+        password=user.password
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def create_book(db: Session, book: schemas.BookCreate):
+    db_book = models.Book(**book.dict())
+    db.add(db_book)
+    db.commit()
+    db.refresh(db_book)
+    return db_book
+
+
     # result = (
     #     db.query(models.Review)
     #     .

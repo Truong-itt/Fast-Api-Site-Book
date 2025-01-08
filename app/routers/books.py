@@ -33,4 +33,17 @@ def get_books_by_category(category_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No books found for this category")
     return books
 
+@router.get("/reviews")
+def get_book_reviews(book_id: int, db: Session = Depends(get_db)):
+    reviews_book = crud.get_book_reviews(db=db, book_id=book_id)
+    if not reviews_book:
+        raise HTTPException(status_code=404, detail="No books found for this category")
+    return reviews_book
+
+# create book 
+@router.post("/create", response_model=schemas.User)
+def create_book(book: schemas.BookCreate, db: Session = Depends(get_db)):
+    return crud.create_book(db=db, book=book)
+
+
 

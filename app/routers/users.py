@@ -42,8 +42,32 @@ def get_user_reviews(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No books found for this user")
     return books
 
+@router.get("/address")
+def get_user_address(user_id: int, db: Session = Depends(get_db)):
+    address = crud.get_user_address(db=db, user_id=user_id)
+    if not address:
+        raise HTTPException(status_code=404, detail="No address found for this user")
+    return address
 
+@router.get("/favorite")
+def get_user_favorite(user_id: int, db: Session = Depends(get_db)):
+    favorite = crud.get_user_favorite(db=db, user_id=user_id)
+    if not favorite:
+        raise HTTPException(status_code=404, detail="No favorite found for this user")
+    return favorite
 
+@router.get("/coupons")
+def get_user_coupons(user_id: int, db: Session = Depends(get_db)):
+    coupons = crud.get_user_coupons(db=db, user_id=user_id)
+    if not coupons:
+        raise HTTPException(status_code=404, detail="No coupons found for this user")
+    return coupons
+
+# create user
+@router.post("/create", response_model=schemas.User)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    return crud.create_user(db=db, user=user)
+ 
 # @router.post("/users", response_model=schemas.UserCreate)
 # def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 #     # Kiểm tra xem email đã tồn tại chưa
