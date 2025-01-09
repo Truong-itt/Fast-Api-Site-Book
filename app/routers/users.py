@@ -107,17 +107,11 @@ def update_user_password(user_id: int, user: schemas.UserPasswordUpdate, db: Ses
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="An error occurred while updating the password")
-# cap nhat mat khau nguoi dung 
 
- 
-
-# @router.post("/users", response_model=schemas.UserCreate)
-# def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-#     # Kiểm tra xem email đã tồn tại chưa
-#     db_user = db.query(models.User).filter(models.User.email == user.email).first()
-#     if db_user:
-#         raise HTTPException(status_code=400, detail="Email already registered")
-    
-#     # Tạo người dùng mới
-#     db_user = crud.create_user(db=db, user=user)
-#     return db_user
+# them dia chi  cho user
+@router.post("/addAddress", response_model=schemas.ShippingAddressResponse)
+def add_shipping_address(user_id: int, address: schemas.ShippingAddressCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_shipping_address(db, address, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))

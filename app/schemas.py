@@ -133,3 +133,34 @@ class UserPasswordUpdate(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ShippingAddressBase(BaseModel):
+    full_name:  Optional[str] = None
+    phone:  Optional[str] = None
+    address_line1:  Optional[str] = None
+    address_line1:  Optional[str] = None
+    city:  Optional[str] = None
+    state:  Optional[str] = None
+    country:  Optional[str] = None
+    postal_code:  Optional[str] = None
+    country:  Optional[str] = None
+    is_default:  Optional[bool] = None
+
+class ShippingAddressCreate(BaseModel):
+    full_name: str = Field(..., max_length=100, description="Họ và tên người nhận")
+    phone: str = Field(..., max_length=15, description="Số điện thoại của người nhận")
+    address_line1: str = Field(..., description="Địa chỉ chính (vd: số nhà, đường)")
+    address_line2: Optional[str] = Field(None, description="Địa chỉ phụ (vd: tòa nhà, tầng)")
+    city: str = Field(..., max_length=100, description="Thành phố")
+    state: Optional[str] = Field(None, max_length=100, description="Bang hoặc tỉnh")
+    postal_code: str = Field(..., max_length=20, description="Mã bưu điện")
+    country: str = Field(..., max_length=100, description="Quốc gia")
+    is_default: Optional[bool] = Field(True, description="Đặt làm địa chỉ mặc định")
+
+class ShippingAddressResponse(ShippingAddressBase):
+    address_id: int
+    user_id: int
+    create_at: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True        

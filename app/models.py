@@ -24,6 +24,9 @@ class User(Base):
     mode = Column(Integer, default=1)
     orders = relationship("Order", back_populates="user")
 
+    shipping_addresses = relationship("Shipping_address", back_populates="user")
+    orders = relationship("Order", back_populates="user")
+
 class Category(Base):
     __tablename__ = "categories"
     category_id = Column(Integer, primary_key=True, index=True)
@@ -143,4 +146,4 @@ class Shipping_address(Base):
     is_default = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP, default="now()")
 
-    user = relationship("User")
+    user = relationship("User", back_populates="shipping_addresses")

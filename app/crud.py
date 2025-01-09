@@ -241,6 +241,22 @@ def update_user_password(db: Session, user_id: int, user: schemas.UserPasswordUp
         db.refresh(db_user)
     return db_user
 
+def create_shipping_address(db: Session, address: schemas.ShippingAddressCreate, user_id: int):
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+
+    if not db_user:
+        return ValueError("Not found user in db")
+    
+    if address.is_default:
+        db.query(models.Shipping_address).filter(
+            models.Shipping_address.user_id == user_id,
+            models.Shipping_address.is_default == True
+        ).update({"is_default": False}, synchronize_session=False)    
+    new_address = models.Shipping_address(**address.dict(), user_id=user_id)
+    db.add(new_address)
+    db.commit()
+    db.refresh(new_address)
+    return new_address
     # result = (
     #     db.query(models.Review)
     #     .
